@@ -1,6 +1,15 @@
-const jwt = require('jsonwebtoken');
-const verify = require('../lib/encryption');
+// 데이터베이스 모델과 관련된 스키마를 정의하는 디렉토리 
 
+const jwt = require('jsonwebtoken');  // JSON Web Token을 생성 및 검증하는 라이브러리
+const verify = require('../lib/encryption'); // 비밀번호 해시 생성 및 검증을 담당하는 커스텀라이브러리
+
+const db = require('../database/db'); // 데이터베이스 연결 설정
+
+
+
+
+// 사용자 정보를 저장하는 배열 
+// 이메일, 해시된 비밀번호, 이름, 구독 목록, 좋아요 목록, 시청목록, 시청기록 포함
 let users = [
   {
     email: 'testapp@testapp.com',
@@ -84,34 +93,42 @@ let users = [
   },
 ];
 
+// 새로운 이메일을 받아 JWT 생성
 const generateToken = newEmail =>
-  jwt.sign(newEmail, process.env.JWT_SECRET_KEY, {
-    expiresIn: '7d',
+  jwt.sign(newEmail, process.env.JWT_SECRET_KEY, {  // process.env.JWT_SECRET_KEY을 비밀 키로 사용
+    expiresIn: '7d',  // 토큰은 7일간 유효
   });
 
+// 이메일을 입력받아 이메일의 앞부분을 사용하여 사용자 이름을 생성
 const createName = email => email.match(/^([a-zA-Z0-9_.+-]+)@/)[1];
 
+// 이메일과 비밀번호 입력받아 새로운 사용자 생성
 const createUser = async (email, password) => {
+  // 비밀번호를 해시화하여 저장
   const _password = await verify.createHashedPassword(password);
 
+  // 사용자는 초기 값으로 비어있는 구독목록, 좋아요목록, 시청목록, 시청기록 목록을 가짐
   users = [
     ...users,
     {
       email,
       password: _password,
       name: createName(email),
-      subscribe_list: [],
-      like_list: [],
-      watch_list: [],
-      history_list: [],
+      subscribe_list: [], // 구독 목록
+      like_list: [],  // 좋아요 목록
+      watch_list: [], // 시청 목록
+      history_list: [], // 시청 기록
     },
   ];
 };
 
+// 이메일로 사용자를 찾아 반환
 const findUserByEmail = email => users.find(user => user.email === email);
 
+// 이메일과 비밀번호로 사용자를 찾아 반환
 const findUser = (email, password) => users.find(user => user.email === email && user.password === password);
 
+// 모든 사용자 목록을 반환
 const getUsers = () => users;
 
 const updateSubscribeList = (email, object) =>
@@ -170,3 +187,6 @@ module.exports = {
   changePassword,
   withdrawalUser,
 };
+
+
+// 앱이 종료되면 이 배열의 데이터는 모두 삭제

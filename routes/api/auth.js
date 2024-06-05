@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const users = require('../../models/users');
+const users = require('../../models/users');  // 유저 컨트롤러 가져오기
 const verify = require('../../lib/encryption');
 
 router.get('/verify', (req, res) => {
@@ -17,6 +17,7 @@ router.get('/verify', (req, res) => {
   }
 });
 
+// 로그인 
 router.post('/signin', async (req, res) => {
   const { email, password } = req.body;
 
@@ -44,6 +45,8 @@ router.post('/signin', async (req, res) => {
   res.send(email);
 });
 
+
+// 회원가입
 router.post('/signup', async (req, res) => {
   const { email, password } = req.body;
 

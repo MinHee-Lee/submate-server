@@ -1,6 +1,12 @@
 const express = require('express');
 const users = require('../../models/users');
 
+const path = require('path');
+const jwt = require('jsonwebtoken');
+// const { createHashedPassword, verifyPassword } = require('../lib/encryption');
+const encryption = require(path.join(__dirname, '..', '..', 'lib', 'encryption'));
+
+
 const router = express.Router();
 
 router.get('/:email', (req, res) => {
